@@ -1,3 +1,4 @@
+import os
 from mcp.server.fastmcp import FastMCP
 from src.adapters.postgres_connection_adapter import PostgresConnectionAdapter
 from src.core.logging import get_logger
@@ -45,4 +46,7 @@ def describe_table(table_name: str) -> str:
 
 if __name__ == "__main__":
     logger.info("Starting Postgres MCP Server")
-    mcp.run(transport='stdio')
+    if "PORT" in os.environ:
+        mcp.run(transport='sse')
+    else:
+        mcp.run(transport='stdio')
