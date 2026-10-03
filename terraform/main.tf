@@ -15,7 +15,7 @@ provider "aws" {
 resource "aws_ecr_repository" "app_repo" {
   name                 = var.app_name
   image_tag_mutability = "MUTABLE"
-  force_destroy        = true
+  force_delete = true
 }
 
 resource "aws_iam_role" "apprunner_access_role" {
