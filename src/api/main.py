@@ -1,8 +1,8 @@
 import os
 from mcp.server.fastmcp import FastMCP
-from src.adapters.postgres_connection_adapter import PostgresConnectionAdapter
-from src.core.logging import get_logger
-from src.core.config import settings
+from adapters.postgres_connection_adapter import PostgresConnectionAdapter
+from core.logging import get_logger
+from core.config import settings
 
 logger = get_logger("postgres-mcp", settings.log_level)
 host = os.getenv("HOST", "127.0.0.1")

@@ -1,9 +1,9 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from typing import Any, Dict, List
-from src.core.ports.database_connection import IDatabaseConnection
-from src.core.config import settings
-from src.core.logging import get_logger
+from core.ports.database_connection import IDatabaseConnection
+from core.config import settings
+from core.logging import get_logger
 
 logger = get_logger("postgres_adapter")
 
