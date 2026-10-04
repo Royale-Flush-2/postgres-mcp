@@ -61,6 +61,25 @@ jobs:
             -backend-config="region=${{ env.AWS_REGION }}" \
             -backend-config="dynamodb_table=${{ env.TF_STATE_TABLE }}"
 
+      - name: Wait for AppRunner to be READY
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-2
+        run: |
+          echo "Waiting 15 seconds to let App Runner catch up with ECR push..."
+          sleep 15
+          echo "Waiting for any ongoing AppRunner deployments to finish..."
+          while true; do
+            STATUS=$(aws apprunner list-services --region us-east-2 --query "ServiceSummaryList[?ServiceName=='postgres-mcp'].Status" --output text || echo "UNKNOWN")
+            if [ "$STATUS" = "RUNNING" ] || [ "$STATUS" = "CREATE_FAILED" ] || [ "$STATUS" = "UNKNOWN" ] || [ -z "$STATUS" ]; then
+              echo "AppRunner is ready (Status: $STATUS)"
+              break
+            fi
+            echo "AppRunner status is $STATUS. Waiting 20 seconds..."
+            sleep 20
+          done
+
       - name: Terraform Apply - ECR Repository Only
         working-directory: ./terraform
         run: terraform apply -target=aws_ecr_repository.app_repo -auto-approve
@@ -77,6 +96,25 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Wait for AppRunner to be READY
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-2
+        run: |
+          echo "Waiting 15 seconds to let App Runner catch up with ECR push..."
+          sleep 15
+          echo "Waiting for any ongoing AppRunner deployments to finish..."
+          while true; do
+            STATUS=$(aws apprunner list-services --region us-east-2 --query "ServiceSummaryList[?ServiceName=='postgres-mcp'].Status" --output text || echo "UNKNOWN")
+            if [ "$STATUS" = "RUNNING" ] || [ "$STATUS" = "CREATE_FAILED" ] || [ "$STATUS" = "UNKNOWN" ] || [ -z "$STATUS" ]; then
+              echo "AppRunner is ready (Status: $STATUS)"
+              break
+            fi
+            echo "AppRunner status is $STATUS. Waiting 20 seconds..."
+            sleep 20
+          done
 
       - name: Terraform Apply - Deploy App Runner Service
         working-directory: ./terraform
