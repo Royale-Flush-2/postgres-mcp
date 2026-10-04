@@ -15,4 +15,4 @@ COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
 COPY --chown=appuser:appuser src/ /app/src/
 USER appuser
 EXPOSE 8000
-CMD ["sh", "-c", "python src/api/main.py"]
+CMD ["sh", "-c", "python -m src.api.main"]
